@@ -423,6 +423,10 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
 		brightnessSeekBar.setProgress(0);
 		ImageGray16Bit imageGray16Bit = imageView.getImage();
 		int imageData[] = imageGray16Bit.getOriginalImageData();
+		if(imageData == null)
+		{
+			return;
+		}
 		imageData = DicomHelper.invertPixels(imageData);
 		imageGray16Bit.setImageData(imageData);
 		imageGray16Bit.setOriginalImageData(imageData);
@@ -442,10 +446,15 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
 	{
 		
 		brightnessValue.setText("" + progress);
-		if(allowEvaluateProgressValue)
+		// on creation image on imageView may be null
+		if(allowEvaluateProgressValue && imageView.getImage() != null)
 		{
 			ImageGray16Bit imageGray16Bit = imageView.getImage();
 			int imageData[] = imageGray16Bit.getOriginalImageData();
+			if(imageData == null)
+			{
+				return;
+			}
 			imageData = DicomHelper.setBrightness(imageData, progress);
 			imageGray16Bit.setImageData(imageData);
 			imageView.setImage(imageGray16Bit);
