@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  copyright (C) 2011 Robert Schmidt
+ 
+  This file <main.xml> is part of Minimal Dicom Viewer.
+ 
+  Minimal Dicom Viewer is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+ 
+  Minimal Dicom Viewer is distributed as Open Source Software ( OSS )
+  and comes WITHOUT ANY WARRANTY and even with no IMPLIED WARRANTIES OF MERCHANTABILITY,
+  OF SATISFACTORY QUALITY, AND OF FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU General Public License ( GPLv3 ) for more details.
+
+ 
+  You should have received a copy of the GNU General Public License
+  along with Minimal Dicom Viewer. If not, see <http://www.gnu.org/licenses/>.
+ 
+  Released date: 13-11-2011
+ 
+  Version: 1.0
+ -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+<FrameLayout
+	   	android:layout_width="fill_parent" android:layout_height="fill_parent">
+
+		<de.mdv.DicomImageView android:id="@+id/imageView" 
+			android:layout_width="fill_parent" 
+			android:scaleType="matrix" android:layout_height="fill_parent">
+		</de.mdv.DicomImageView>
+</FrameLayout>
+<LinearLayout android:id="@+id/brightness" android:orientation="horizontal" android:paddingBottom="15dp" android:paddingLeft="15dp" android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_alignParentBottom="true">
+    <Button android:layout_width="wrap_content" android:id="@+id/prevButton" android:background="@android:drawable/ic_media_rew" android:layout_marginRight="10dp" android:onClick="prevImage" android:layout_height="match_parent"></Button>
+    <TextView android:text="@string/brightness" android:id="@+id/brightnessLabel" android:paddingRight="3dp" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+    <SeekBar android:layout_height="wrap_content" android:id="@+id/brightnessSeekBar" android:layout_width="wrap_content" android:layout_weight="1." android:paddingBottom="10dp" android:paddingTop="10dp"></SeekBar>
+    <TextView android:layout_height="wrap_content" android:text="@string/brightnessvalue" android:id="@+id/brightnessValue" android:paddingLeft="3dp" android:layout_width="wrap_content"></TextView>
+    <Button android:layout_width="wrap_content" android:id="@+id/nextButton" android:background="@android:drawable/ic_media_ff" android:layout_marginLeft="10dp" android:onClick="nextImage" android:layout_height="match_parent"></Button>
+</LinearLayout>
+<TextView android:text="TextView" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/currentFileLabel"></TextView>
+</RelativeLayout>
