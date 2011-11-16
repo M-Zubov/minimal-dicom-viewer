@@ -123,7 +123,9 @@ public class Messages
 	
 	
 	private static final String DISCLAIMER_ENGL =
-				"Minimal Dicom Viewer is a Free Software\n\n" +
+				"Minimal Dicom Viewer is a Free and Open Source Software (OSS) licensed under the terms of the GNU General Public" +
+				" License as published by the Free Software Foundation, either version 3 " +
+				"of the License, or (at your option) any later version.\n\n" +
 				"THIS VERSION OF MINIMAL DICOM VIEWER IS NOT CERTIFIED AS A MEDICAL DEVICE " +
 				"(CE-1 or FDA) FOR PRIMARY DIAGNOSIS OR CLINICAL PRACTICE. " +
 				"THIS SOFTWARE CAN ONLY BE USED AS A REVIEWING OR SCIENTIFIC SOFTWARE AND " +
@@ -139,7 +141,8 @@ public class Messages
 				"2011 © Robert Schmidt";
 	
 	private static final String DISCLAIMER_GER =
-		"Minimal Dicom Viewer ist freie Software\n\n" +
+		"Minimal Dicom Viewer ist freie und Open Source Software, sie kann unter den Bedingungen der GNU General Public" +
+		"License veröffentlicht von der Free Software Foundation entweder in der Version 3 (GPLv3) oder höher lizenziert werden.\n\n" +
 		"DIESE VERSION DES MINIMAL DICOM VIEWER IST NICHT ZERTIFIZIERT ALS EINE MEDIZINISCHE GERÄTSCHAFT " +
 		"(CE-1 oder FDA) WELCHE FÜR DIAGNOSTISCHE ZWECKE ODER DEN KLINISCHEN EINSATZ GEEIGNET IST!\n" +
 		"DIESE SOFTWARE IST NUR ZU TESTZWECKEN ZU BENUTZEN.\n\n" +
