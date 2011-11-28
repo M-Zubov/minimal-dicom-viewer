@@ -24,6 +24,8 @@
  */
 package de.mdv;
 
+import java.io.ByteArrayOutputStream;
+
 import org.dcm4che2.data.DicomElement;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.SequenceDicomElement;
@@ -36,6 +38,7 @@ public class DicomHelper {
 		DicomElement dicomElement = dcmObj.get(Tag.PixelData);
         if(dicomElement instanceof SequenceDicomElement)
         {
+        	ByteArrayOutputStream baos = new ByteArrayOutputStream();
         	SequenceDicomElement sde = (SequenceDicomElement)dicomElement;
         	int count = sde.countItems();
         	for(int i = 0; i < count; i++)
@@ -43,9 +46,18 @@ public class DicomHelper {
         		Object bts = sde.getObject(i);
         		if(bts instanceof byte[])
         		{
-        			return (byte[])bts;
+        			byte bytes[] = (byte[])bts;
+        			try
+        			{
+        				baos.write(bytes);
+        			}
+        			catch(Exception ex)
+        			{
+        				throw new IllegalStateException(ex.getMessage());
+        			}
         		}
         	}
+        	return baos.toByteArray();
         }
         else 
         {
