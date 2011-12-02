@@ -24,20 +24,22 @@
  */
 package de.mdv;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Arrays;
 
-import org.dcm4che2.data.BasicDicomObject;
 import org.dcm4che2.data.VRMap;
-import org.dcm4che2.io.DicomInputStream;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -48,13 +50,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarChangeListener
 {
 
-	public static final String FILE_NAME 			= "file_name";
-	public static final String SEEKBAR_VISIBILITY 	= "SeekBar_Visibility";
-	public static final String DISCLAIMER_ACCEPTED 	= "Disclaimer_Accepted";
+	public static final String FILE_NAME 					= "file_name";
+	public static final String SEEKBAR_VISIBILITY 			= "SeekBar_Visibility";
+	public static final String DISCLAIMER_ACCEPTED 			= "Disclaimer_Accepted";
+	public static final String PATIENTDATA_VISIBILITY 		= "PatientData_Visibility";
 	
 	
 	public static final short OUT_OF_MEMORY = 0;
@@ -82,22 +86,22 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
 	
 	
 	
-	
 	private DicomImageView imageView;
 	private DicomFileLoader dicomFileLoader;
 	private File[] fileArray = null;
 	private int currentFileIndex = -1;
 	private String actualFileName = "";
-	private boolean paintInverted = false;
 	
 	private boolean isInitialized = false;
 	
-	
-	private static final short MENU_CONFIGURE_LANGUAGE = 0;
-	private static final short MENU_CONFIGURE_DISCLAIMER_DIALOG = 1;
-	private static final short MENU_SWITCH_SEEKBAR_VISIBILITY = 2;
 	private static final short MENU_INVERT = 3;
 	private static final short MENU_ABOUT = 4;
+	private static final short MENU_SWITCH_SEEKBAR_VISIBILITY = 2;
+	private static final short MENU_CONFIGURE_DISCLAIMER_DIALOG = 1;
+	private static final short MENU_CONFIGURE_LANGUAGE = 0;
+	private static final short MENU_EXPORT_TO_JPEG = 5;
+	private static final short MENU_CONFIGURE_PATIENT_DATA = 6;
+	private static final short MENU_CONFIGURE_APP = 7;
 	
 	
 	private static final short PROGRESS_IMAGE_LOAD = 0;
@@ -109,8 +113,10 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
 	
 	private boolean allowEvaluateProgressValue = true;
 	private boolean seekBarVisibility = true;
+	private boolean patientDataVisibility = false;
 	
 	public static final String PREFERENCES_NAME = "MDVPreferencesFile";
+	Context context;
 	
 	
 	
@@ -119,6 +125,7 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
     public void onCreate(Bundle savedInstanceState) 
     {
         super.onCreate(savedInstanceState);
+        context = this;
         VRMap.getVRMap();
         VRMap.loadVRMap( "org/dcm4che2/data/VRMap.ser" );
         setContentView(R.layout.main);
@@ -132,6 +139,17 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
         brightnessSeekBar.setOnSeekBarChangeListener(this);
         brightnessSeekBar.setMax(255);
         
+        ((TextView)findViewById(R.id.PatientNameLabel)).setVisibility(View.INVISIBLE);
+        ((TextView)findViewById(R.id.PatientNameValue)).setVisibility(View.INVISIBLE);
+        ((TextView)findViewById(R.id.PatientPrenameLabel)).setVisibility(View.INVISIBLE);
+        ((TextView)findViewById(R.id.PatientPrenameValue)).setVisibility(View.INVISIBLE);
+        ((TextView)findViewById(R.id.PatientBirthLabel)).setVisibility(View.INVISIBLE);
+        ((TextView)findViewById(R.id.PatientBirthValue)).setVisibility(View.INVISIBLE);
+        
+        ((TextView)findViewById(R.id.PatientNameLabel)).setText(Messages.getLabel(Messages.PATIENT_NAME_LABEL, Messages.Language));
+        ((TextView)findViewById(R.id.PatientPrenameLabel)).setText(Messages.getLabel(Messages.PATIENT_PRENAME_LABEL, Messages.Language));
+        ((TextView)findViewById(R.id.PatientBirthLabel)).setText(Messages.getLabel(Messages.PATIENT_BIRTHDATE_LABEL, Messages.Language));
+        
         String fileName = null;        
         
         SharedPreferences settings = getSharedPreferences(PREFERENCES_NAME, 0);
@@ -144,6 +162,16 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
 				brightnessLabel.setVisibility(View.INVISIBLE);
 				brightnessValue.setVisibility(View.INVISIBLE);
 				seekBarVisibility = false;
+        	}
+        	patientDataVisibility = settings.getBoolean(PATIENTDATA_VISIBILITY, false);
+        	if(patientDataVisibility)
+        	{
+        		((TextView)findViewById(R.id.PatientNameLabel)).setVisibility(View.VISIBLE);
+                ((TextView)findViewById(R.id.PatientNameValue)).setVisibility(View.VISIBLE);
+                ((TextView)findViewById(R.id.PatientPrenameLabel)).setVisibility(View.VISIBLE);
+                ((TextView)findViewById(R.id.PatientPrenameValue)).setVisibility(View.VISIBLE);
+                ((TextView)findViewById(R.id.PatientBirthLabel)).setVisibility(View.VISIBLE);
+                ((TextView)findViewById(R.id.PatientBirthValue)).setVisibility(View.VISIBLE);
         	}
         }
 		
@@ -222,32 +250,6 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
     	textView.setTextColor(Color.rgb(255, 0, 0));
     	textView.setText(Messages.getLabel(Messages.FILE, Messages.Language) +": " + toPrint);
     }
-    
-    
-    
-    @Override
-	protected void onResume() 
-    {
-		// If there is no external storage available, quit the application
-		if (!ExternalDevice.isExternalDeviceAvailable()) 
-		{
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage(Messages.getMessageExternalDevice(Messages.Language))
-				   .setTitle(Messages.getMessageExternalDeviceHeader(Messages.Language))
-			       .setCancelable(false)
-			       .setPositiveButton("Exit", new DialogInterface.OnClickListener() 
-			       {
-			           public void onClick(DialogInterface dialog, int id) 
-			           {
-			                MinimalDicomViewer.this.finish();
-			           }
-			       });
-			AlertDialog alertDialog = builder.create();
-			alertDialog.show();
-		}
-		super.onResume();
-	}
-    
     
     
     @Override
@@ -346,9 +348,9 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
     	super.onCreateOptionsMenu(menu);
     	menu.add(0, MENU_INVERT, MENU_INVERT, Messages.getLabel(Messages.MENU_INVERT_PICTURE, Messages.Language));
 		menu.add(1, MENU_ABOUT, MENU_ABOUT, Messages.getLabel(Messages.MENU_ABOUT, Messages.Language));
-		menu.add(2, MENU_SWITCH_SEEKBAR_VISIBILITY, MENU_SWITCH_SEEKBAR_VISIBILITY, Messages.getLabel(Messages.MENU_CHANGE_VISIBLITY, Messages.Language));
-		menu.add(3, MENU_CONFIGURE_LANGUAGE, MENU_CONFIGURE_LANGUAGE, Messages.getLabel(Messages.CONFIGURE_LANGUAGE, Messages.Language));
-		menu.add(4, MENU_CONFIGURE_DISCLAIMER_DIALOG, MENU_CONFIGURE_DISCLAIMER_DIALOG, Messages.getLabel(Messages.CONFIGURE_DISCLAIMER_DIALOG_MULTILINE, Messages.Language));
+		menu.add(2, MENU_CONFIGURE_LANGUAGE, MENU_CONFIGURE_LANGUAGE, Messages.getLabel(Messages.CONFIGURE_LANGUAGE, Messages.Language));
+		menu.add(3, MENU_EXPORT_TO_JPEG, MENU_EXPORT_TO_JPEG, Messages.getLabel(Messages.MENU_EXPORT_TO_JPEG, Messages.Language));
+		menu.add(4, MENU_CONFIGURE_APP, MENU_CONFIGURE_APP, Messages.getLabel(Messages.MENU_CONFIGURE_APP, Messages.Language));
 		return true;
     }
     
@@ -356,6 +358,7 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
     @Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) 
 	{
+    	int visibility;
 		switch (item.getItemId()) 
 		{
 		case MENU_ABOUT:
@@ -373,7 +376,7 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
 			return true;
 			
 		case MENU_SWITCH_SEEKBAR_VISIBILITY:
-			int visibility = brightnessSeekBar.getVisibility();
+			visibility = brightnessSeekBar.getVisibility();
 			if(visibility == View.VISIBLE)
 			{
 				visibility = View.INVISIBLE;
@@ -398,23 +401,206 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
 			displayLanguage();
 			return true;
 			
+		case MENU_EXPORT_TO_JPEG:
+			exportToJpeg();
+			return true;
+			
+		case MENU_CONFIGURE_PATIENT_DATA:
+			visibility = ((TextView)findViewById(R.id.PatientNameLabel)).getVisibility();
+			if(visibility == View.VISIBLE)
+			{
+				visibility = View.INVISIBLE;
+				patientDataVisibility = false;
+			}
+			else
+			{
+				visibility = View.VISIBLE;
+				patientDataVisibility = true;
+			}
+			((TextView)findViewById(R.id.PatientNameLabel)).setVisibility(visibility);
+			((TextView)findViewById(R.id.PatientNameValue)).setVisibility(visibility);
+			((TextView)findViewById(R.id.PatientPrenameLabel)).setVisibility(visibility);
+			((TextView)findViewById(R.id.PatientPrenameValue)).setVisibility(visibility);
+			((TextView)findViewById(R.id.PatientBirthLabel)).setVisibility(visibility);
+			((TextView)findViewById(R.id.PatientBirthValue)).setVisibility(visibility);
+			return true;
+			
+		case MENU_CONFIGURE_APP:
+			showAppConfigureDialog();
+			return true;
+		
 		default:
 			return super.onMenuItemSelected(featureId, item);
 		}
 	}
     
     
-    /**
-     * store the preferences
-     */
+    private boolean afdSeekBarVisibility;
+    private boolean afdHideDisclaimerDialog;
+    private boolean afdPatientDataVisibility;
+    
+    
+    private void showAppConfigureDialog()
+    {
+        final boolean[] states = {seekBarVisibility, MDVFileChooser.bHideDisclaimerDialog, patientDataVisibility};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        afdSeekBarVisibility = seekBarVisibility;
+        afdHideDisclaimerDialog = MDVFileChooser.bHideDisclaimerDialog;
+        afdPatientDataVisibility = patientDataVisibility;
+        
+        final CharSequence[] items = {
+        		Messages.getLabel(Messages.MENU_TOOLBAR_VISIBLITY_ON, Messages.Language), 
+        		Messages.getLabel(Messages.MENU_DISCLAIMER_DIALOG_OFF, Messages.Language),
+        		Messages.getLabel(Messages.MENU_PATIENT_DATA_ON, Messages.Language)
+    	};        
+        
+        builder.setTitle(Messages.getLabel(Messages.TITLE_CONFIGURE_APP, Messages.Language));
+        builder.setMultiChoiceItems(items, states, new DialogInterface.OnMultiChoiceClickListener(){
+            public void onClick(DialogInterface dialogInterface, int item, boolean state) 
+            {
+            	if(item == 0)afdSeekBarVisibility = state;
+            	else if(item == 1)afdHideDisclaimerDialog = state;
+            	else if(item == 2)afdPatientDataVisibility = state;
+            }
+        });
+        builder.setPositiveButton(Messages.getLabel(Messages.BUTTON_OK, Messages.Language), new DialogInterface.OnClickListener() 
+        {
+            public void onClick(DialogInterface dialog, int id) 
+            {
+                seekBarVisibility 						= afdSeekBarVisibility;
+                MDVFileChooser.bHideDisclaimerDialog 	= afdHideDisclaimerDialog;
+                patientDataVisibility 					= afdPatientDataVisibility;
+                
+                int visibility = (seekBarVisibility == true) ? View.VISIBLE : View.INVISIBLE;
+                brightnessSeekBar.setVisibility(visibility);
+    			brightnessLabel.setVisibility(visibility);
+    			brightnessValue.setVisibility(visibility);
+    			
+    			visibility = (patientDataVisibility == true) ? View.VISIBLE : View.INVISIBLE;
+    			
+    			((TextView)findViewById(R.id.PatientNameLabel)).setVisibility(visibility);
+    			((TextView)findViewById(R.id.PatientNameValue)).setVisibility(visibility);
+    			((TextView)findViewById(R.id.PatientPrenameLabel)).setVisibility(visibility);
+    			((TextView)findViewById(R.id.PatientPrenameValue)).setVisibility(visibility);
+    			((TextView)findViewById(R.id.PatientBirthLabel)).setVisibility(visibility);
+    			((TextView)findViewById(R.id.PatientBirthValue)).setVisibility(visibility);
+                
+                
+                // and now store data
+                SharedPreferences settings = getSharedPreferences(PREFERENCES_NAME, 0);
+        	    SharedPreferences.Editor editor = settings.edit();	    
+                editor.putBoolean(MDVFileChooser.HIDE_DISCLAIMER_DIALOG, MDVFileChooser.bHideDisclaimerDialog );
+                editor.putBoolean(SEEKBAR_VISIBILITY, seekBarVisibility );
+        	    editor.putBoolean(PATIENTDATA_VISIBILITY, patientDataVisibility );
+        	    editor.commit();
+            }
+        });
+        builder.setNegativeButton(Messages.getLabel(Messages.BUTTON_CANCEL, Messages.Language), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                 dialog.cancel();
+            }
+        });
+        builder.create().show();
+
+    }
+    
+    
+    boolean paintInverted = false;
+    
+    
     private void storePreferencesData()
     {
     	SharedPreferences settings = getSharedPreferences(PREFERENCES_NAME, 0);
 	    SharedPreferences.Editor editor = settings.edit();	    
-	    if(seekBarVisibility)editor.putBoolean(SEEKBAR_VISIBILITY, true );
-		else editor.putBoolean(SEEKBAR_VISIBILITY, false );
+	    editor.putBoolean(SEEKBAR_VISIBILITY, seekBarVisibility );
+	    editor.putBoolean(PATIENTDATA_VISIBILITY, patientDataVisibility );
 	    editor.commit();
     }
+    
+    
+    
+    
+    
+    
+    
+    String resultPathFromFileDialog = null;
+    Intent fileDialogIntent;
+    
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+    	resultPathFromFileDialog = data.getStringExtra(FileDialog.RESULT_PATH);
+    	super.onActivityResult(requestCode, resultCode, data);
+    }
+    
+    
+    @Override
+	protected void onResume() 
+    {
+		// If there is no external storage available, quit the application
+		if (!ExternalDevice.isExternalDeviceAvailable()) 
+		{
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage(Messages.getMessageExternalDevice(Messages.Language))
+				   .setTitle(Messages.getMessageExternalDeviceHeader(Messages.Language))
+			       .setCancelable(false)
+			       .setPositiveButton("Exit", new DialogInterface.OnClickListener() 
+			       {
+			           public void onClick(DialogInterface dialog, int id) 
+			           {
+			                MinimalDicomViewer.this.finish();
+			           }
+			       });
+			AlertDialog alertDialog = builder.create();
+			alertDialog.show();
+		}
+		super.onResume();
+		if(resultPathFromFileDialog != null && (!resultPathFromFileDialog.equals(FileDialog.NO_FILE_SELECTED)))
+		{
+			if(!resultPathFromFileDialog.toLowerCase().endsWith(".jpg"))resultPathFromFileDialog += ".jpg";
+			Toast.makeText(this, Messages.getLabel(Messages.FILE_WRITTEN, Messages.Language) + ":\n" + resultPathFromFileDialog, Toast.LENGTH_SHORT).show();
+			exportJpegToFile(resultPathFromFileDialog);
+			// prevent from calling more than once
+			resultPathFromFileDialog = null;
+		}
+    }
+    
+    
+    private void exportJpegToFile(String path)
+    {
+    	ImageGray16Bit imageGray16Bit = imageView.getImage();
+    	Bitmap bitmap = Bitmap.createBitmap(imageGray16Bit.getImageData(), imageGray16Bit.getWidth(), imageGray16Bit.getHeight(), Bitmap.Config.ARGB_8888);
+    	try
+    	{
+    		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    		bitmap.compress(Bitmap.CompressFormat.JPEG, 95, baos);
+    		File f = new File(path);
+    		//new FileOutputStream("sdcard/image1.jpg")
+    		f.createNewFile();
+    		//write the bytes in file
+    		FileOutputStream fo = new FileOutputStream(f);
+    		fo.write(baos.toByteArray());
+    		fo.flush();
+    		fo.close();
+
+    	}
+    	catch(Exception ex)
+    	{
+    		ex.printStackTrace();
+    	}
+    }
+    
+    
+    private void exportToJpeg()
+    {
+    	fileDialogIntent = new Intent(this, FileDialog.class);
+    	fileDialogIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+    	fileDialogIntent.putExtra(FileDialog.SELECTION_MODE, FileDialog.MODE_CREATE);
+    	fileDialogIntent.putExtra(FileDialog.START_PATH, "/sdcard");
+		startActivityForResult(fileDialogIntent, 0);
+    }
+    
     
     
     private void paintInvert()
@@ -547,7 +733,6 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
 	
 	
 	
-	
 	private final Handler loadingHandler = new Handler() 
 	{
 		public void handleMessage(Message message) 
@@ -571,6 +756,9 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
 				if (message.obj instanceof ImageGray16Bit) 
 				{
 					setImage((ImageGray16Bit) message.obj);
+					((TextView)findViewById(R.id.PatientNameValue)).setText( ((ImageGray16Bit) message.obj).getPatientName());
+					((TextView)findViewById(R.id.PatientPrenameValue)).setText( ((ImageGray16Bit) message.obj).getPatientPrename());
+					((TextView)findViewById(R.id.PatientBirthValue)).setText( ((ImageGray16Bit) message.obj).getPatientBirth());
 				}
 				setFilenameLabel((TextView)findViewById(R.id.currentFileLabel), actualFileName);
 
@@ -650,26 +838,23 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
 			
 			mHandler.sendEmptyMessage(STARTED);
 			// If image exists show image
-			try 
-			{
+			try {
 				ImageGray16Bit image = null;
 				
-				BasicDicomObject bdo = new BasicDicomObject();
-		    	DicomInputStream dis = new DicomInputStream(new java.io.BufferedInputStream(new java.io.FileInputStream(fileName)));
-		    	dis.readDicomObject(bdo, -1);
-		    	int height = bdo.getInt(org.dcm4che2.data.Tag.Rows);
-		    	int width = bdo.getInt(org.dcm4che2.data.Tag.Columns);
-		    	int bitsAllocated = bdo.getInt(org.dcm4che2.data.Tag.BitsAllocated);
-		    	if(bitsAllocated == 8 || bitsAllocated == 12 || bitsAllocated == 16)
-		    	{
-		    		byte bytePixels[] = DicomHelper.readPixelData(bdo);
-		    		int pixelData[] = DicomHelper.convertToIntPixelData(bytePixels, bitsAllocated, width, height);
-		    		image = new ImageGray16Bit();
+				DicomReader reader = new DicomReader(fileName);
+				int pixelData[] = reader.getPixelData();
+				if(pixelData != null)
+				{
+					image = new ImageGray16Bit();
 		    		image.setImageData(pixelData);
 		    		image.setOriginalImageData(pixelData);
-		    		image.setWidth(width);
-		    		image.setHeight(height);
-		    	}
+		    		image.setWidth(reader.getWidth());
+		    		image.setHeight(reader.getHeight());
+		    		image.setPatientName(reader.getPatientName());
+		    		image.setPatientPrename(reader.getPatientPrename());
+		    		image.setPatientBirth(reader.getPatientBirthString());
+				}
+				// Send the LISA 16-Bit grayscale image
 				Message message = mHandler.obtainMessage();
 				message.what = FINISHED;
 				message.obj = image;
@@ -759,7 +944,7 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
 				Messages.Language = whichButton;
 			}
 		})
-		.setPositiveButton(Messages.getLabel(Messages.LABEL_OK, Messages.Language), new DialogInterface.OnClickListener() {
+		.setPositiveButton(Messages.getLabel(Messages.BUTTON_OK, Messages.Language), new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
 				// on Ok button action
 				SharedPreferences settings = getSharedPreferences(MinimalDicomViewer.PREFERENCES_NAME, 0);
@@ -793,7 +978,7 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
 				
 			}
 		})
-		.setPositiveButton(Messages.getLabel(Messages.LABEL_OK, Messages.Language), new DialogInterface.OnClickListener() {
+		.setPositiveButton(Messages.getLabel(Messages.BUTTON_OK, Messages.Language), new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
 				// on Ok button action
 				SharedPreferences settings = getSharedPreferences(MinimalDicomViewer.PREFERENCES_NAME, 0);

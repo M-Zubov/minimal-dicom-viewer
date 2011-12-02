@@ -41,5 +41,21 @@
     <TextView android:layout_height="wrap_content" android:text="@string/brightnessvalue" android:id="@+id/brightnessValue" android:paddingLeft="3dp" android:layout_width="wrap_content"></TextView>
     <Button android:layout_width="wrap_content" android:id="@+id/nextButton" android:background="@android:drawable/ic_media_ff" android:layout_marginLeft="10dp" android:onClick="nextImage" android:layout_height="match_parent"></Button>
 </LinearLayout>
-<TextView android:text="TextView" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/currentFileLabel"></TextView>
+<TableLayout android:id="@+id/tableLayout1" android:layout_width="wrap_content" android:layout_height="wrap_content">
+    <TableRow android:id="@+id/tableRow1" android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <TextView android:layout_width="wrap_content" android:id="@+id/currentFileLabel" android:layout_height="wrap_content"></TextView>
+    </TableRow>
+    <TableRow android:id="@+id/tableRow2" android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <TextView android:id="@+id/PatientNameLabel" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+        <TextView android:id="@+id/PatientNameValue" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+    </TableRow>
+    <TableRow android:id="@+id/tableRow3" android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/PatientPrenameLabel"></TextView>
+        <TextView android:id="@+id/PatientPrenameValue" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+    </TableRow>
+    <TableRow android:id="@+id/tableRow4" android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <TextView android:id="@+id/PatientBirthLabel" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+        <TextView android:id="@+id/PatientBirthValue" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+    </TableRow>
+</TableLayout>
 </RelativeLayout>

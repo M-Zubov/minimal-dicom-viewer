@@ -122,6 +122,9 @@ public class DicomHelper {
 	public static int[] convertToIntPixelData(byte bytePixels[], int bitsAllocated, int width, int height)
 	{
 		int outputPixels[] = null;
+		// TODO show Memory Error Dialog
+		// actually we do not accept byte data exceeding 4MB
+		if(width * height * 4 > 4*1024*1024)return outputPixels;
 		if(bytePixels == null || width < 1 || height < 1)return outputPixels;
 		outputPixels = new int[width * height];
 		int pixelGrayLevel = 0;
@@ -195,8 +198,6 @@ public class DicomHelper {
     			pixelGrayLevel; // blue
 			}
 		}
-		
-		
 		return outputPixels;
 	}
 }
