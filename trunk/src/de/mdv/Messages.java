@@ -36,37 +36,68 @@ public class Messages
 	public static int Language = LANG_GER;
 	
 	
-	public static final int MENU_ABOUT = 0;
-	public static final int ABOUT_HEADER = 1;
-	public static final int MENU_INVERT_PICTURE = 2;
-	public static final int MENU_CHANGE_VISIBLITY = 3;
-	public static final int LOADING_IMAGE = 4;
-	public static final int FILE = 5;
-	public static final int ERROR_LOADING_FILE = 6;
-	public static final int THE_FILE_CANNOT_BE_LOADED = 7;
-	public static final int CANNOT_RETRIEVE_NAME = 8;
-	public static final int NO_DICOM_FILES_IN_DIRECTORY = 9;
-	public static final int FILE_IS_NOT_IN_DIRECTORY = 10;
-	public static final int LABEL_BRIGHTNESS = 11;
-	public static final int LABEL_ACCEPT = 12;
-	public static final int LABEL_DECLINE = 13;
-	public static final int LABEL_DISCLAIMER = 14;
-	public static final int CONFIGURE_LANGUAGE = 15;
-	public static final int CONFIGURE_DISCLAIMER_DIALOG = 16;
-	public static final int SHOW_DISCLAIMER_DIALOG = 17;
-	public static final int HIDE_DISCLAIMER_DIALOG = 18;
-	public static final int NO_EXTERNAL_DEVICE_FOUND = 19;
-	public static final int APP_WILL_QUIT_NOW = 20;
-	public static final int MEDIA_STORAGE_DEVICE_NOT_SUPPORTED = 21;
-	public static final int ERROR_OPENING_FILE = 22;
-	public static final int CONFIGURE_DISCLAIMER_DIALOG_MULTILINE = 23;
-	public static final int LABEL_OK = 24;
+	public static final int MENU_ABOUT 								= 0;
+	public static final int ABOUT_HEADER 							= 1;
+	public static final int MENU_INVERT_PICTURE 					= 2;
+	public static final int MENU_TOOLBAR_VISIBLITY_ON 				= 3;
+	public static final int MENU_TOOLBAR_VISIBLITY_OFF 				= 4;
+	public static final int LOADING_IMAGE 							= 5;
+	public static final int FILE 									= 6;
+	public static final int ERROR_LOADING_FILE 						= 7;
+	public static final int THE_FILE_CANNOT_BE_LOADED 				= 8;
+	public static final int CANNOT_RETRIEVE_NAME 					= 9;
+	public static final int NO_DICOM_FILES_IN_DIRECTORY 			= 10;
+	public static final int FILE_IS_NOT_IN_DIRECTORY 				= 11;
+	public static final int LABEL_BRIGHTNESS 						= 12;
+	public static final int LABEL_ACCEPT 							= 13;
+	public static final int LABEL_DECLINE 							= 14;
+	public static final int LABEL_DISCLAIMER 						= 15;
+	public static final int CONFIGURE_LANGUAGE 						= 16;
+	public static final int CONFIGURE_DISCLAIMER_DIALOG 			= 17;
+	public static final int SHOW_DISCLAIMER_DIALOG 					= 18;
+	public static final int HIDE_DISCLAIMER_DIALOG 					= 19;
+	public static final int NO_EXTERNAL_DEVICE_FOUND 				= 20;
+	public static final int APP_WILL_QUIT_NOW 						= 21;
+	public static final int MEDIA_STORAGE_DEVICE_NOT_SUPPORTED 		= 22;
+	public static final int ERROR_OPENING_FILE 						= 23;
+	public static final int MENU_DISCLAIMER_DIALOG_ON 				= 24;
+	public static final int MENU_DISCLAIMER_DIALOG_OFF 				= 25;
+	public static final int BUTTON_OK 								= 26;
+	public static final int MENU_EXPORT_TO_JPEG 					= 27;
+	public static final int PATIENT_NAME_LABEL 						= 28;
+	public static final int PATIENT_PRENAME_LABEL 					= 29;
+	public static final int PATIENT_BIRTHDATE_LABEL 				= 30;
+	public static final int MENU_PATIENT_DATA_ON 					= 31;
+	public static final int MENU_PATIENT_DATA_OFF 					= 32;
+	public static final int BUTTON_NEW 								= 33;
+	public static final int BUTTON_CANCEL 							= 34;
+	public static final int BUTTON_SELECT 							= 35;
+	public static final int BUTTON_CREATE 							= 36;
+	public static final int LABEL_FILE_NAME 						= 37;
+	public static final int OVERWRITE_EXISTING_FILE_DIALOG_HEADER 	= 38;
+	public static final int OVERWRITE_EXISTING_FILE_DIALOG_TEXT 	= 39;
+	public static final int OVERWRITE_EXISTING_FILE_DIALOG_TEXT_2 	= 40;
+	public static final int BUTTON_YES 								= 41;
+	public static final int BUTTON_NO 								= 42;
+	public static final int MENU_CONFIGURE_APP 						= 43;
+	public static final int TITLE_CONFIGURE_APP 					= 44;
+	public static final int FILE_WRITTEN							= 45;
+	public static final int LABEL_LOCATION							= 46;
 	
 	
 	
 	
-	private static String LabelsEngl[] = {"About", "Minimal Dicom Viewer: About",
-		"Invert Picture", "Enable/Disable Toolbar", "Loading Image ...", "File",
+	
+	
+	
+	private static String LabelsEngl[] = {
+		"About", 
+		"Minimal Dicom Viewer: About",
+		"Invert Picture", 
+		"Show Toolbar", 
+		"Disable Toolbar", 
+		"Loading Image ...", 
+		"File",
 		"Error Loading file",
 		"The file cannot be loaded",
 		"Cannot retrieve its name",
@@ -84,12 +115,39 @@ public class Messages
 		"App will quit now",
 		"Media Storage Directories (DicomDir) are not supported yet",
 		"Error opening file",
-		"Disclaimer Dialog",
+		"Show Disclaimer Dialog",
+		"Hide Disclaimer Dialog",
 		"OK",
+		"Export to JPEG",
+		"Name",
+		"Prename",
+		"Date of Birth",
+		"Show Patient data",
+		"Hide Patient data",
+		"New",
+		"Cancel",
+		"Select",
+		"Save",
+		"File Name",
+		"Overwrite existing file",
+		"Do you want to overwrite the following file ?",
+		"",
+		"Yes",
+		"No",
+		"Configure App",
+		"Configure Settings",
+		"File written",
+		"Location"
 		};
 	
-	private static String LabelsGer[] = {"Über", "Über Minimal Dicom Viewer", "Bild invertieren", 
-		"Toolbar ein/ausblenden", "Bild wird geladen ...", "Datei",
+	private static String LabelsGer[] = {
+		"Über", 
+		"Über Minimal Dicom Viewer", 
+		"Bild invertieren", 
+		"Toolbar einblenden", 
+		"Toolbar ausblenden", 
+		"Bild wird geladen ...", 
+		"Datei",
 		"Fehler beim Datei laden",
 		"Datei kann nicht geladen werden",
 		"Dateiname kann nicht ermittelt werden",
@@ -107,8 +165,29 @@ public class Messages
 		"Die Anwendung beendet sich jetzt",
 		"Kataloge wie Dicomdir werden derzeit nicht unterstützt",
 		"Fehler bei Öffnen der Datei",
-		"Haftungsausschluß",
+		"Haftungsausschluß einblenden",
+		"Haftungsausschluß ausblenden",
 		"OK",
+		"JPEG Datei erstellen",
+		"Name",
+		"Vorname",
+		"Geburtsdatum",
+		"Patientendaten anzeigen",
+		"Patientendaten ausblenden",
+		"Neu",
+		"Abbrechen",
+		"Auswählen",
+		"Sichern",
+		"Dateiname",
+		"Überschreiben einer Datei",
+		"Soll die folgende Datei:",
+		"überschrieben werden ?",
+		"Ja",
+		"Nein",
+		"Einstellungen",
+		"Einstellungen konfigurieren",
+		"Datei geschrieben",
+		"Ort"
 	};
 	
 	private static final String ABOUT_MESSAGE_ENGL =

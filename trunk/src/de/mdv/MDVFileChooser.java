@@ -366,7 +366,7 @@ public class MDVFileChooser extends ListActivity {
 				Messages.Language = whichButton;
 			}
 		})
-		.setPositiveButton(Messages.getLabel(Messages.LABEL_OK, Messages.Language), new DialogInterface.OnClickListener() {
+		.setPositiveButton(Messages.getLabel(Messages.BUTTON_OK, Messages.Language), new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
 				// on OK button action
 				storeLanguageData();

@@ -66,10 +66,10 @@ public class MyOnTouchListener implements OnTouchListener {
             case MotionEvent.ACTION_DOWN:
             	div.last.set(event.getX(), event.getY());
             	div.start.set(div.last);
-                div.mode = div.DRAG;
+                div.mode = DicomImageView.DRAG;
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (div.mode == div.DRAG) {
+                if (div.mode == DicomImageView.DRAG) {
                     float deltaX = curr.x - div.last.x;
                     float deltaY = curr.y - div.last.y;
                     float scaleWidth = Math.round(div.origWidth * div.saveScale);
@@ -103,15 +103,15 @@ public class MyOnTouchListener implements OnTouchListener {
                 break;
 
             case MotionEvent.ACTION_UP:
-            	div.mode = div.NONE;
+            	div.mode = DicomImageView.NONE;
                 int xDiff = (int) Math.abs(curr.x - div.start.x);
                 int yDiff = (int) Math.abs(curr.y - div.start.y);
-                if (xDiff < div.CLICK && yDiff < div.CLICK)
+                if (xDiff < DicomImageView.CLICK && yDiff < DicomImageView.CLICK)
                 	div.performClick();
                 break;
 
             case MotionEvent.ACTION_POINTER_UP:
-            	div.mode = div.NONE;
+            	div.mode = DicomImageView.NONE;
                 break;
         }
         div.setImageMatrix(div.matrix);
@@ -125,7 +125,7 @@ public class MyOnTouchListener implements OnTouchListener {
 	private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 	    @Override
 	    public boolean onScaleBegin(ScaleGestureDetector detector) {
-	    	div.mode = div.ZOOM;
+	    	div.mode = DicomImageView.ZOOM;
 	        return true;
 	    }
 

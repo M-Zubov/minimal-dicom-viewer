@@ -40,6 +40,10 @@ public class ImageGray16Bit {
 	private int[] imageData = null;
 	private int[] originalImageData = null;
 	
+	private String patientName;
+	private String patientPrename;
+	private String patientBirth;
+	
 	
 	public void setImageData(int[] imageData)
 	{
@@ -89,5 +93,31 @@ public class ImageGray16Bit {
 	public int getHeight()
 	{
 		return height;
+	}
+	
+	public void setPatientName(String value)
+	{
+		this.patientName = value;
+	}
+	public void setPatientPrename(String value)
+	{
+		this.patientPrename = value;
+	}
+	public void setPatientBirth(String value)
+	{
+		this.patientBirth = value;
+	}
+	
+	public String getPatientName()
+	{
+		return patientName;
+	}
+	public String getPatientPrename()
+	{
+		return patientPrename;
+	}
+	public String getPatientBirth()
+	{
+		return patientBirth;
 	}
 }
