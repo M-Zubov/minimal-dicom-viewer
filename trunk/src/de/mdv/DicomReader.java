@@ -59,6 +59,7 @@ public class DicomReader {
 			dis.readDicomObject(bdo, -1);
 			height = bdo.getInt(org.dcm4che2.data.Tag.Rows);
 	    	width = bdo.getInt(org.dcm4che2.data.Tag.Columns);
+	    	boolean invert = bdo.get(0x00280004).toString().toUpperCase().endsWith("[MONOCHROME1]") ? true : false;
 	    	
 	    	String completeName = bdo.getString(org.dcm4che2.data.Tag.PatientName);
 	    	StringTokenizer tokenizer = new StringTokenizer(completeName, "^");
@@ -80,7 +81,7 @@ public class DicomReader {
 	    	if(bitsAllocated == 8 || bitsAllocated == 12 || bitsAllocated == 16)
 	    	{
 	    		byte bytePixels[] = DicomHelper.readPixelData(bdo);
-	    		pixelData = DicomHelper.convertToIntPixelData(bytePixels, bitsAllocated, width, height);
+	    		pixelData = DicomHelper.convertToIntPixelData(bytePixels, bitsAllocated, width, height, invert);
 	    	}
 		}
 		catch(Exception ex)

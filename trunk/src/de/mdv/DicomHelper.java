@@ -119,7 +119,7 @@ public class DicomHelper {
 	/*
 	 * prepare for painting: convert a given byte[] to int[]
 	 */
-	public static int[] convertToIntPixelData(byte bytePixels[], int bitsAllocated, int width, int height)
+	public static int[] convertToIntPixelData(byte bytePixels[], int bitsAllocated, int width, int height, boolean invert)
 	{
 		int outputPixels[] = null;
 		// TODO show Memory Error Dialog
@@ -161,6 +161,7 @@ public class DicomHelper {
 				
 				pixelGrayLevel = (256 * (intPixelLevel - windowOffset) / windowWidth);
 				pixelGrayLevel = (pixelGrayLevel > 255) ? 255 : ((pixelGrayLevel < 0) ? 0 : pixelGrayLevel);
+				if(invert)pixelGrayLevel = 255 - pixelGrayLevel;
 				i++;
 				outputPixels[j++] = (0xFF << 24) | // alpha
     			(pixelGrayLevel << 16) | // red
