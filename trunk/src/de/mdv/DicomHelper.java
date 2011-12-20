@@ -89,8 +89,14 @@ public class DicomHelper {
 	}
 	
 	
-	public static int[] setBrightness(int pixelData[], int brightness)
+	public static int[] setBrightnessAndContrast(int pixelData[], int brightness, int contrast)
 	{
+		LUTable lut = new LUTable();
+		
+		double contrastVal = Math.pow(contrast/127., 2);
+		lut.setContrast(contrastVal);
+		lut.setBrightness(256 - brightness);
+		
 		if(pixelData == null)return pixelData;
 		for(int i = 0; i < pixelData.length; i++)
     	{
@@ -99,13 +105,10 @@ public class DicomHelper {
 			int red 	= (gray >> 16) & 0xff;
 			int green 	= (gray >> 8) & 0xff;
 			int blue 	= gray & 0xff;
-			red += brightness;
-			green += brightness;
-			blue += brightness;
-			
-			red = red > 255 ? 255 : red;
-			green = green > 255 ? 255 : green;
-			blue = blue > 255 ? 255 : blue;
+
+			red = lut.getValue(red);
+			green = lut.getValue(green);
+			blue = lut.getValue(blue);
     		
 			pixelData[i] = (0xFF << 24) | 
 			(red << 16) | 

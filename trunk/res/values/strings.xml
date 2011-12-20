@@ -25,7 +25,9 @@
 <resources>
     <string name="app_name">Minimal Dicom Viewer</string>
     <string name="brightness">brightness</string>
+    <string name="contrast">contrast</string>
     <string name="brightnessvalue">0</string>
+    <string name="contrastvalue">0</string>
     
     <string name="location">Location</string>
     <string name="cant_read_folder">folder can\'t be read!</string>
