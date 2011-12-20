@@ -49,10 +49,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarChangeListener
+public class MinimalDicomViewer extends Activity 
 {
 
 	public static final String FILE_NAME 					= "file_name";
@@ -111,12 +112,22 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
 	private TextView brightnessValue;
 	private TextView brightnessLabel;
 	
+	private SeekBar contrastSeekBar;
+	private TextView contrastValue;
+	private TextView contrastLabel;
+	
 	private boolean allowEvaluateProgressValue = true;
 	private boolean seekBarVisibility = true;
 	private boolean patientDataVisibility = false;
 	
 	public static final String PREFERENCES_NAME = "MDVPreferencesFile";
 	Context context;
+	
+	
+	
+	public static int iBrightness = 128;
+	public static int iContrast = 128;
+	
 	
 	
 	
@@ -134,10 +145,70 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
         brightnessValue = (TextView)findViewById(R.id.brightnessValue);
         brightnessLabel = (TextView)findViewById(R.id.brightnessLabel);
         brightnessLabel.setText(Messages.getLabel(Messages.LABEL_BRIGHTNESS, Messages.Language));
+        contrastLabel = (TextView)findViewById(R.id.contrastLabel);
+        contrastLabel.setText(Messages.getLabel(Messages.LABEL_CONTRAST, Messages.Language));
+        
+        
+        contrastSeekBar = (SeekBar)findViewById(R.id.contrastSeekBar);
+        contrastValue = (TextView)findViewById(R.id.contrastValue);
+        contrastLabel = (TextView)findViewById(R.id.contrastLabel);
+        
         
         // Set the seek bar change index listener
-        brightnessSeekBar.setOnSeekBarChangeListener(this);
+        brightnessSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+			
+			public void onStopTrackingTouch(SeekBar seekbar) {}
+			public void onStartTrackingTouch(SeekBar seekbar) {}
+			public synchronized void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) 
+			{
+				brightnessValue.setText("" + 100*progress/255);
+				// on creation image on imageView may be null
+				if(allowEvaluateProgressValue && imageView.getImage() != null)
+				{
+					ImageGray16Bit imageGray16Bit = imageView.getImage();
+					int imageData[] = imageGray16Bit.getOriginalImageData();
+					if(imageData == null)
+					{
+						return;
+					}
+					iBrightness = progress;
+					imageData = DicomHelper.setBrightnessAndContrast(imageData, iBrightness, iContrast);
+					imageGray16Bit.setImageData(imageData);
+					imageView.setImage(imageGray16Bit);
+					imageView.draw();
+				}
+			}
+		});
         brightnessSeekBar.setMax(255);
+        brightnessSeekBar.setProgress(iBrightness);
+        
+        contrastSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+			
+			public void onStopTrackingTouch(SeekBar seekbar) {}
+			public void onStartTrackingTouch(SeekBar seekbar) {}
+			
+			public synchronized void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) 
+			{
+				contrastValue.setText("" + 100*progress/255);
+				// on creation image on imageView may be null
+				if(allowEvaluateProgressValue && imageView.getImage() != null)
+				{
+					ImageGray16Bit imageGray16Bit = imageView.getImage();
+					int imageData[] = imageGray16Bit.getOriginalImageData();
+					if(imageData == null)
+					{
+						return;
+					}
+					iContrast = progress;
+					imageData = DicomHelper.setBrightnessAndContrast(imageData, iBrightness, iContrast);
+					imageGray16Bit.setImageData(imageData);
+					imageView.setImage(imageGray16Bit);
+					imageView.draw();
+				}
+			}
+		});
+        contrastSeekBar.setMax(255);
+        contrastSeekBar.setProgress(iContrast);
         
         ((TextView)findViewById(R.id.PatientNameLabel)).setVisibility(View.INVISIBLE);
         ((TextView)findViewById(R.id.PatientNameValue)).setVisibility(View.INVISIBLE);
@@ -161,6 +232,10 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
         		brightnessSeekBar.setVisibility(View.INVISIBLE);
 				brightnessLabel.setVisibility(View.INVISIBLE);
 				brightnessValue.setVisibility(View.INVISIBLE);
+				
+				contrastSeekBar.setVisibility(View.INVISIBLE);
+				contrastLabel.setVisibility(View.INVISIBLE);
+				contrastValue.setVisibility(View.INVISIBLE);
 				seekBarVisibility = false;
         	}
         	patientDataVisibility = settings.getBoolean(PATIENTDATA_VISIBILITY, false);
@@ -390,6 +465,10 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
 			brightnessSeekBar.setVisibility(visibility);
 			brightnessLabel.setVisibility(visibility);
 			brightnessValue.setVisibility(visibility);
+			contrastSeekBar.setVisibility(visibility);
+			contrastLabel.setVisibility(visibility);
+			contrastValue.setVisibility(visibility);
+			
 			storePreferencesData();
 			return true;
 			
@@ -475,6 +554,9 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
                 brightnessSeekBar.setVisibility(visibility);
     			brightnessLabel.setVisibility(visibility);
     			brightnessValue.setVisibility(visibility);
+    			contrastSeekBar.setVisibility(visibility);
+    			contrastLabel.setVisibility(visibility);
+    			contrastValue.setVisibility(visibility);
     			
     			visibility = (patientDataVisibility == true) ? View.VISIBLE : View.INVISIBLE;
     			
@@ -623,30 +705,6 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
 		if(!paintInverted)paintInverted = true;
 		else paintInverted = false;
     }
-    
-    
-    /* (non-Javadoc)
-	 * @see android.widget.SeekBar.OnSeekBarChangeListener#onProgressChanged(android.widget.SeekBar, int, boolean)
-	 */
-	public synchronized void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) 
-	{
-		
-		brightnessValue.setText("" + progress);
-		// on creation image on imageView may be null
-		if(allowEvaluateProgressValue && imageView.getImage() != null)
-		{
-			ImageGray16Bit imageGray16Bit = imageView.getImage();
-			int imageData[] = imageGray16Bit.getOriginalImageData();
-			if(imageData == null)
-			{
-				return;
-			}
-			imageData = DicomHelper.setBrightness(imageData, progress);
-			imageGray16Bit.setImageData(imageData);
-			imageView.setImage(imageGray16Bit);
-			imageView.draw();
-		}
-	}
 	
 
 	// Needed to implement the SeekBar.OnSeekBarChangeListener
@@ -846,8 +904,9 @@ public class MinimalDicomViewer extends Activity implements SeekBar.OnSeekBarCha
 				if(pixelData != null)
 				{
 					image = new ImageGray16Bit();
-		    		image.setImageData(pixelData);
 		    		image.setOriginalImageData(pixelData);
+		    		pixelData = DicomHelper.setBrightnessAndContrast(pixelData, iBrightness, iContrast);
+		    		image.setImageData(pixelData);
 		    		image.setWidth(reader.getWidth());
 		    		image.setHeight(reader.getHeight());
 		    		image.setPatientName(reader.getPatientName());

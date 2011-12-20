@@ -83,6 +83,8 @@ public class Messages
 	public static final int TITLE_CONFIGURE_APP 					= 44;
 	public static final int FILE_WRITTEN							= 45;
 	public static final int LABEL_LOCATION							= 46;
+	public static final int MENU_OPEN_JPEG							= 47;
+	public static final int LABEL_CONTRAST	 						= 48;
 	
 	
 	
@@ -103,7 +105,7 @@ public class Messages
 		"Cannot retrieve its name",
 		"No Dicom files within directory",
 		"File is not in directory",
-		"brightness",
+		"Brightness",
 		"Accept",
 		"Decline",
 		"Disclaimer",
@@ -137,7 +139,9 @@ public class Messages
 		"Configure App",
 		"Configure Settings",
 		"File written",
-		"Location"
+		"Location",
+		"Open JPEG File",
+		"Contrast"
 		};
 	
 	private static String LabelsGer[] = {
@@ -187,7 +191,9 @@ public class Messages
 		"Einstellungen",
 		"Einstellungen konfigurieren",
 		"Datei geschrieben",
-		"Ort"
+		"Ort",
+		"JPEG Datei öffnen",
+		"Kontrast"
 	};
 	
 	private static final String ABOUT_MESSAGE_ENGL =

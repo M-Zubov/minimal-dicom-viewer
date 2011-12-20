@@ -73,6 +73,8 @@ public class MDVFileChooser extends ListActivity {
 	{
 		super.onCreate(savedInstanceState);
 		// Set the content view
+		MinimalDicomViewer.iContrast = 128;
+		MinimalDicomViewer.iBrightness = 128;
 		
 		SharedPreferences settings 	= getSharedPreferences(MinimalDicomViewer.PREFERENCES_NAME, 0);
 		bHideDisclaimerDialog 		= settings.getBoolean(HIDE_DISCLAIMER_DIALOG, false);
