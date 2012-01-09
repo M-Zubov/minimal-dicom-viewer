@@ -687,6 +687,17 @@ public class MinimalDicomViewer extends Activity
     
     private void paintInvert()
     {
+    	// sometimes this happens on startup and image is not quite loaded
+    	// v1.2
+    	// 03.01.2012 09:20:21
+    	// 1 Berichte/Woche
+    	// 1 Berichte
+    	// java.lang.NullPointerException
+    	// at de.mdv.MinimalDicomViewer.paintInvert(MinimalDicomViewer.java:693)
+    	if(imageView.getImage() == null)
+    	{
+    		return;
+    	}
     	allowEvaluateProgressValue = false;
 		brightnessSeekBar.setProgress(0);
 		ImageGray16Bit imageGray16Bit = imageView.getImage();
